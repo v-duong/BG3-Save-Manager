@@ -18,24 +18,10 @@ namespace BG3_Save_Manager
 {
     public class LarianReader
     {
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        internal struct FileEntry18
-        {
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
-            public byte[] Name;
-
-            public UInt32 OffsetInFile1;
-            public UInt16 OffsetInFile2;
-            public Byte ArchivePart;
-            public Byte Flags;
-            public UInt32 SizeOnDisk;
-            public UInt32 UncompressedSize;
-        }
-
-        public static byte[] VersionSignature = { 0x4C, 0x53, 0x50, 0x4B};
+        public static byte[] VersionSignature = { 0x4C, 0x53, 0x50, 0x4B };
         public static byte[] LSFSignature = new byte[] { 0x4C, 0x53, 0x4F, 0x46 };
 
-        public SaveMetadata ReadFile(string path)
+        public SaveMetadata? ReadFile(string path)
         {
             FileStream fileStream = File.OpenRead(path);
 
@@ -59,9 +45,14 @@ namespace BG3_Save_Manager
 
                         LZ4Codec.Decode(compressedFileList, 0, compressedFileList.Length, uncompressedList, 0, fileBufferSize);
 
-                        MemoryStream metadataStream = new MemoryStream(GetMetadataFile(numFiles, uncompressedList, fileStream, reader));
-                        var lsf = ResourceUtils.LoadResource(metadataStream, LSLib.LS.Enums.ResourceFormat.LSF);
-                        //return ReadMetadata(metadataStream);
+                        var metadataBytes = GetMetadataFile(numFiles, uncompressedList, fileStream, reader);
+                        if (metadataBytes == null)
+                            return null;
+
+                        MemoryStream metadataStream = new MemoryStream(metadataBytes);
+                        Resource lsf = ResourceUtils.LoadResource(metadataStream, LSLib.LS.Enums.ResourceFormat.LSF);
+
+                        return ExtractMetadataFromResource(lsf);
                     }
                 }
             }
@@ -69,7 +60,26 @@ namespace BG3_Save_Manager
             return null;
         }
 
-        private byte[] GetMetadataFile(int numFiles, byte[] uncompressedList, FileStream fileStream, BinaryReader reader)
+        private SaveMetadata ExtractMetadataFromResource(Resource resource)
+        {
+            var metadataAttributes = resource.Regions["MetaData"].Children["MetaData"][0].Attributes;
+            var versionAttributes = resource.Regions["MetaData"].Children["MetaData"][0].Children["GameVersions"][0].Children["GameVersion"];
+
+            var metadata = new SaveMetadata(
+                (string)metadataAttributes["GameSessionID"].Value,
+                (string)metadataAttributes["LeaderName"].Value,
+                (UInt64)metadataAttributes["SaveTime"].Value,
+                (SaveMetadata.DifficultyType)Convert.ToInt32(metadataAttributes["Difficulty"].Value),
+                (SaveMetadata.SaveType)Convert.ToInt32(metadataAttributes["SaveGameType"].Value),
+                (UInt32)metadataAttributes["TimeStamp"].Value,
+                (int)metadataAttributes["Seed"].Value,
+                (string)versionAttributes.Last().Attributes["Object"].Value
+            );
+
+            return metadata;
+        }
+        
+        private byte[]? GetMetadataFile(int numFiles, byte[] uncompressedList, FileStream fileStream, BinaryReader reader)
         {
             var ms = new MemoryStream(uncompressedList);
             using var memReader = new BinaryReader(ms);
@@ -105,7 +115,7 @@ namespace BG3_Save_Manager
 
             return null;
         }
-
+        
         private byte[] DecompressZLib(byte[] compressedBytes)
         {
             using (var decompressedStream = new MemoryStream())
@@ -122,77 +132,8 @@ namespace BG3_Save_Manager
             }
         }
 
-        private byte[] DecompressLZ4(byte[] compressedBytes, int decompressedSize, bool chunked = false)
-        {
-            if (chunked)
-            {
-                return null;
-            } else
-            {
-                var decompressed = new byte[decompressedSize];
-                LZ4Codec.Decode(compressedBytes, 0, compressedBytes.Length, decompressed, 0, decompressedSize, true);
-                return decompressed;
-            }
-        }
 
-        private SaveMetadata ReadMetadata(Stream metadataStream)
-        {
-            using (var reader = new BinaryReader(metadataStream))
-            {
-                metadataStream.Seek(0, SeekOrigin.Begin);
-                UInt32 signature = reader.ReadUInt32();
-                if (signature != BitConverter.ToUInt32(LSFSignature, 0))
-                {
-                    Debug.WriteLine("mismatch");
-                }
 
-                var fileVersion = reader.ReadUInt32();
-
-                if (fileVersion >= 6)
-                {
-                    Debug.WriteLine(fileVersion);
-                }
-
-                var gameVersion = reader.ReadInt64();
-
-                var metadataRegions = new UInt32[10];
-                for (int i = 0; i < 10; i++)
-                {
-                    metadataRegions[i] = reader.ReadUInt32();
-                }
-
-                var compression = reader.ReadByte();
-                metadataStream.Seek(3, SeekOrigin.Current);
-                var hasSiblingData = reader.ReadUInt32();
-                Debug.WriteLine($"{hasSiblingData} sibling");
-
-                var decompressedNames = DecompressLZ4(reader.ReadBytes((int)metadataRegions[1]), (int)metadataRegions[0]);
-                var names = new List<List<string>>();
-                using (var nameStream = new MemoryStream(decompressedNames))
-                using (var nameReader = new BinaryReader(nameStream))
-                {
-                    var entryCount = nameReader.ReadUInt32();
-                    for(int i = 0; i < entryCount; i++)
-                    {
-                        var stringCount = nameReader.ReadUInt16();
-
-                        var sublist = new List<string>();
-                        names.Add(sublist);
-
-                        for (int j = 0; j <  stringCount; j++)
-                        {
-                            var nameLen = nameReader.ReadUInt16();
-                            byte[] bytes = nameReader.ReadBytes(nameLen);
-                            var name = Encoding.UTF8.GetString(bytes);
-                            sublist.Add(name);
-                        }
-                    }
-                }
-
-   
-
-            }
-            return null;
-        }
     }
+       
 }

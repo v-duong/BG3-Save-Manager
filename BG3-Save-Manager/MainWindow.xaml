@@ -5,15 +5,88 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BG3_Save_Manager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Baldur's Gate 3 Save Manager" Height="720" Width="1280">
+    <Window.Resources>
+        <local:SaveGameTypeConverter x:Key="saveTypeConverter"></local:SaveGameTypeConverter>
+    </Window.Resources>
     <DockPanel>
-        <Grid>
-            <Menu DockPanel.Dock="Top">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_Open Folder" Click="SettingsClick" />
-                </MenuItem>
-            </Menu>
-            <DataGrid d:ItemsSource="{d:Binding}"/>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_OpenFolder" Click="SettingsClick" />
+            </MenuItem>
+        </Menu>
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
+                <ColumnDefinition Width="8*"></ColumnDefinition>
+                <ColumnDefinition Width="5"></ColumnDefinition>
+                <ColumnDefinition Width="4*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock FontWeight="Bold" Padding="3">Filters</TextBlock>
+                <TreeView Grid.Column="0" BorderThickness="0">
+                    <TreeViewItem Header="Character" IsExpanded="True">
+                        <local:CheckboxList x:Name="CharacterFilterList" DataContext="{Binding}"></local:CheckboxList>
+                    </TreeViewItem>
+                    <TreeViewItem Header="Save Type">
+                        <local:CheckboxList x:Name="SaveFilterList" DataContext="{Binding}"></local:CheckboxList>
+                    </TreeViewItem>
+                </TreeView>
+                <TextBlock FontWeight="Bold" Padding="3">Extra Columns</TextBlock>
+                <CheckBox Name="GameVersionCheck" Margin="10,0,0,0" IsChecked="False" Click="ColumnCheck_Click">Game Version</CheckBox>
+                <CheckBox Name="ThumbnailCheck" Margin="10,0,0,0" IsChecked="False" Click="ColumnCheck_Click">Thumbnail</CheckBox>
+            </StackPanel>
+            <DataGrid  Grid.Column="1" IsReadOnly="True"  x:Name="SaveGrid" d:ItemsSource="{d:Binding}" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" SelectedCellsChanged="SaveGrid_SelectedCellsChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" ></DataGridTextColumn>
+                    <DataGridTextColumn Header="Leader Name" Binding="{Binding LeaderName}" ></DataGridTextColumn>
+                    <DataGridTextColumn Header="Save Type" Binding="{Binding SaveGameType, Converter={StaticResource saveTypeConverter}}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Time" Binding="{Binding ConvertedTime}" ></DataGridTextColumn>
+                    <DataGridTextColumn x:Name="GameVersionColumn" Header="Version" Binding="{Binding GameVersion}" Visibility="Hidden"></DataGridTextColumn>
+                    <DataGridTemplateColumn x:Name="ThumbnailColumn" Header="Thumbnail"  Visibility="Hidden">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image MaxHeight="100" Source="{Binding ThumbnailUri}"></Image>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <GridSplitter Grid.Column="2" HorizontalAlignment="Stretch" Background="#FFB7B7B7" />
+            <ListBox Name="DetailsPanel" Grid.Column="3" DataContext="{Binding}">
+                <ListBox.Style>
+                    <Style TargetType="ListBox">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.Style>
+                <Image Height="300" Name="SaveImage" Source="{Binding ImageUri}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock FontWeight="Bold">File Name:</TextBlock>
+                        <TextBlock FontWeight="Bold">Time Saved:</TextBlock>
+                        <TextBlock FontWeight="Bold">Seed:</TextBlock>
+                        <TextBlock FontWeight="Bold">Game Version:</TextBlock>
+                        <TextBlock FontWeight="Bold">Game ID:</TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="{Binding FileName}"></TextBlock>
+                        <TextBlock Text="{Binding SaveTime}"></TextBlock>
+                        <TextBlock Text="{Binding Seed}"></TextBlock>
+                        <TextBlock Text="{Binding GameVersion}"></TextBlock>
+                        <TextBlock Text="{Binding GameSessionId}"></TextBlock>
+                    </StackPanel>
+                </Grid>
+            </ListBox>
         </Grid>
+
     </DockPanel>
 </Window>

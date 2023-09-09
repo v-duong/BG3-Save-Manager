@@ -150,7 +150,7 @@ namespace LSLib.LS
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    internal struct FileEntry18
+    public struct FileEntry18
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
         public byte[] Name;

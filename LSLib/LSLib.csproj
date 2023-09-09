@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LSLib</RootNamespace>
     <AssemblyName>LSLib</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -52,9 +52,15 @@
     </Reference>
     <Reference Include="LZ4, Version=1.0.15.93, Culture=neutral, PublicKeyToken=62e1b5ec1eec9bdd, processorArchitecture=MSIL">
       <HintPath>..\packages\lz4net.1.0.15.93\lib\net4-client\LZ4.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Aliases>global</Aliases>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="QUT.ShiftReduceParser">
       <HintPath>..\external\gppg\binaries\QUT.ShiftReduceParser.dll</HintPath>
@@ -75,11 +81,6 @@
   <ItemGroup>
     <Compile Include="LS\Localization.cs" />
     <Compile Include="LS\Save\SavegameHelpers.cs" />
-    <Compile Include="VirtualTextures\BC5Image.cs" />
-    <Compile Include="VirtualTextures\Compression.cs" />
-    <Compile Include="VirtualTextures\PageFile.cs" />
-    <Compile Include="VirtualTextures\VirtualTexture.cs" />
-    <Compile Include="VirtualTextures\VirtualTextureFormats.cs" />
     <None Include="app.config" />
     <None Include="LS\Stats\Parser\Stat.lex" />
     <None Include="LS\Stats\Parser\Stat.yy" />
@@ -87,50 +88,6 @@
     <None Include="LS\Stats\Parser\StatProperty.yy" />
     <None Include="LS\Story\GoalParser\Goal.lex" />
     <None Include="LS\Story\GoalParser\Goal.yy" />
-    <Compile Include="Granny\Collada.cs" />
-    <Compile Include="Granny\ColladaAnimation.cs" />
-    <Compile Include="Granny\ColladaSchema.cs" />
-    <Compile Include="Granny\GR2Utils.cs" />
-    <Compile Include="Granny\GR2\Format.cs" />
-    <Compile Include="Granny\GR2\Helpers.cs" />
-    <Compile Include="Granny\GR2\Reader.cs" />
-    <Compile Include="Granny\GR2\Writer.cs" />
-    <Compile Include="Granny\Model\Animation.cs" />
-    <Compile Include="Granny\Model\ColladaExporter.cs" />
-    <Compile Include="Granny\Model\ColladaHelpers.cs" />
-    <Compile Include="Granny\Model\ColladaImporter.cs" />
-    <Compile Include="Granny\Model\ColladaMesh.cs" />
-    <Compile Include="Granny\Model\CurveData\AnimationCurveData.cs" />
-    <Compile Include="Granny\Model\CurveData\D3Constant32f.cs" />
-    <Compile Include="Granny\Model\CurveData\D3I1K16uC16u.cs" />
-    <Compile Include="Granny\Model\CurveData\D3I1K32fC32f.cs" />
-    <Compile Include="Granny\Model\CurveData\D3I1K8uC8u.cs" />
-    <Compile Include="Granny\Model\CurveData\D3K16uC16u.cs" />
-    <Compile Include="Granny\Model\CurveData\D3K8uC8u.cs" />
-    <Compile Include="Granny\Model\CurveData\D4Constant32f.cs" />
-    <Compile Include="Granny\Model\CurveData\D4nK16uC15u.cs" />
-    <Compile Include="Granny\Model\CurveData\D4nK8uC7u.cs" />
-    <Compile Include="Granny\Model\CurveData\D9I1K16uC16u.cs" />
-    <Compile Include="Granny\Model\CurveData\D9I1K8uC8u.cs" />
-    <Compile Include="Granny\Model\CurveData\D9I3K16uC16u.cs" />
-    <Compile Include="Granny\Model\CurveData\D9I3K8uC8u.cs" />
-    <Compile Include="Granny\Model\CurveData\DaConstant32f.cs" />
-    <Compile Include="Granny\Model\CurveData\DaIdentity.cs" />
-    <Compile Include="Granny\Model\CurveData\DaK16uC16u.cs" />
-    <Compile Include="Granny\Model\CurveData\DaK32fC32f.cs" />
-    <Compile Include="Granny\Model\CurveData\DaK8uC8u.cs" />
-    <Compile Include="Granny\Model\CurveData\DaKeyframes32f.cs" />
-    <Compile Include="Granny\Model\DivinityMesh.cs" />
-    <Compile Include="Granny\Model\Exporter.cs" />
-    <Compile Include="Granny\Model\HalfHelpers.cs" />
-    <Compile Include="Granny\Model\Metadata.cs" />
-    <Compile Include="Granny\Model\Mesh.cs" />
-    <Compile Include="Granny\Model\Model.cs" />
-    <Compile Include="Granny\Model\Root.cs" />
-    <Compile Include="Granny\Model\Skeleton.cs" />
-    <Compile Include="Granny\Model\Vertex.cs" />
-    <Compile Include="Granny\Model\VertexSerialization.cs" />
-    <Compile Include="Granny\Utils.cs" />
     <Compile Include="LS\BinUtils.cs" />
     <Compile Include="LS\Common.cs" />
     <Compile Include="LS\Enums\CompressionLevel.cs" />
@@ -153,7 +110,6 @@
     <Compile Include="LS\Resources\LSX\LSXReader.cs" />
     <Compile Include="LS\Resources\LSX\LSXWriter.cs" />
     <Compile Include="LS\Matrix.cs" />
-    <Compile Include="LS\Mods\ModResources.cs" />
     <Compile Include="LS\NodeAttribute.cs" />
     <Compile Include="LS\PackageReader.cs" />
     <Compile Include="LS\PackageWriter.cs" />
@@ -210,6 +166,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="LS\Story\HeaderParser\StoryHeader.lex" />
     <None Include="LS\Story\HeaderParser\StoryHeader.yy" />
+    <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -217,12 +174,7 @@
       <Project>{d8b26b12-e45c-47ea-88f7-56628eb2ccd1}</Project>
       <Name>LSLibNative</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OpenTK\OpenTK.csproj">
-      <Project>{abb9db44-14f2-46e0-a4b8-b46c300ca982}</Project>
-      <Name>OpenTK</Name>
-    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
