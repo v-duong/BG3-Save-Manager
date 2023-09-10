@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using System.Collections.Generic;
 
 namespace BG3_Save_Manager
 {
@@ -59,15 +60,23 @@ namespace BG3_Save_Manager
         private void ReadSavesFromFolder()
         {
             var saveReader = new LarianReader();
-            foreach(string directory in Directory.GetDirectories(Properties.Settings.Default.saveFolderPath))
+            var noMetadataList = new List<string>();
+            var missingFileList = new List<string>();
+
+            foreach (string directory in Directory.GetDirectories(Properties.Settings.Default.saveFolderPath))
             {
+                bool foundLSV = false;
+
                 foreach(string file in Directory.GetFiles(directory))
                 {
                     if (file.EndsWith(".lsv"))
                     {
                         var metadata = saveReader.ReadFile(file);
                         if (metadata == null)
+                        {
+                            noMetadataList.Add(directory);
                             continue;
+                        }
                         metadata.FolderName = Path.GetFileName(directory);
                         metadata.FileName = Path.GetFileNameWithoutExtension(file);
 
@@ -75,15 +84,40 @@ namespace BG3_Save_Manager
 
                         if (!CharacterFilter.Any(x=>x.UniqueID == metadata.GameSessionId))
                             CharacterFilter.Add(new CharacterFilterCondition(metadata.LeaderName, true, metadata.GameSessionId));
+
+                        foundLSV = true;
                     }
                 }
+
+                if (!foundLSV)
+                    missingFileList.Add(directory);
             }
+
+            if (missingFileList.Count > 0)
+                ShowMissingFilesWarning(missingFileList);
+
             SaveListView = CollectionViewSource.GetDefaultView(SaveList);
             SaveListView.Filter = SaveListFilter;
             SaveGrid.ItemsSource = SaveListView;
 
             CharacterFilterList.DataContext = CharacterFilter;
             SaveFilterList.DataContext = SaveTypeFilter;
+        }
+
+        private void ShowMissingFilesWarning(List<string> directoryList)
+        {
+            var res = MessageBox.Show($"There are {directoryList.Count} directories with a missing save data (.lsv) file. Would you like to permanently delete these directories?", "Invalid Save Directories", MessageBoxButton.YesNo);
+            if (res == MessageBoxResult.No)
+                return;
+
+            foreach (var save in directoryList)
+            {
+                if (Directory.Exists(save))
+                    Directory.Delete(save, true);
+            }
+
+            MessageBox.Show($"Successfully deleted {directoryList.Count} save files.", "Deletion Complete");
+
         }
 
         private void OpenFolderSelect()
@@ -124,8 +158,20 @@ namespace BG3_Save_Manager
         private void SaveGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
             var grid = sender as DataGrid;
-            var selectedSave = grid?.SelectedItem as SaveMetadata;
+
+            if (grid == null)
+                return;
+
+            var selectedSave = grid.SelectedItem as SaveMetadata;
             DetailsPanel.DataContext = selectedSave;
+
+            if (grid.SelectedItems.Count > 1)
+            {
+                Delete_Button.Content = $"Delete {grid.SelectedItems.Count} Saves";
+            } else
+            {
+                Delete_Button.Content = "Delete Save";
+            }
         }
 
         private void ColumnCheck_Click(object sender, RoutedEventArgs e)
@@ -150,5 +196,32 @@ namespace BG3_Save_Manager
             target.Visibility = (bool)checkbox.IsChecked ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        private void Delete_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (SaveGrid.SelectedItems == null)
+                return;
+
+
+            var res = MessageBox.Show($"This will permanently delete {SaveGrid.SelectedItems.Count} save files. Are you sure?", "Save Deletion", MessageBoxButton.YesNo);
+
+            if (res == MessageBoxResult.No)
+                return;
+
+            var listCopy = SaveGrid.SelectedItems.Cast<SaveMetadata>().ToList();
+            SaveGrid.SelectedItems.Clear();
+
+            foreach(var save in listCopy)
+            {
+                if (Directory.Exists(save.FullFolderPath))
+                {
+                    SaveList.Remove(save);
+                    Directory.Delete(save.FullFolderPath, true);
+                }
+            }
+
+            MessageBox.Show($"Successfully deleted {listCopy.Count} save files.","Deletion Complete");
+
+            SaveListView.Refresh();
+        }
     }
 }

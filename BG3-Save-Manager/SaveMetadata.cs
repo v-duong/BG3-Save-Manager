@@ -35,10 +35,17 @@ namespace BG3_Save_Manager
         public string FolderName { get; set; }
         public string FileName { get; set; }
 
+        public string FullFolderPath { get
+            {
+                return Path.Combine(Properties.Settings.Default.saveFolderPath, FolderName);
+            } 
+        }
+
         public BitmapImage ThumbnailUri { get
             {
                 var image = new BitmapImage();
                 image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
                 image.UriSource = new Uri(Path.Combine(Properties.Settings.Default.saveFolderPath, FolderName, FileName + ".WebP"));
                 image.DecodePixelHeight = 150;
                 image.EndInit();
@@ -50,7 +57,12 @@ namespace BG3_Save_Manager
         {
             get
             {
-                var image = new BitmapImage(new Uri(Path.Combine(Properties.Settings.Default.saveFolderPath, FolderName, FileName + ".WebP")));
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = new Uri(Path.Combine(Properties.Settings.Default.saveFolderPath, FolderName, FileName + ".WebP"));
+                image.DecodePixelHeight = 720;
+                image.EndInit();
                 return image;
             }
         }

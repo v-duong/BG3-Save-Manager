@@ -151,6 +151,9 @@
     </ClCompile>
     <ClCompile Include="physics.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\lslib\license" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
