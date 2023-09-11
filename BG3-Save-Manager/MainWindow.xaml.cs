@@ -96,6 +96,9 @@ namespace BG3_Save_Manager
             if (missingFileList.Count > 0)
                 ShowMissingFilesWarning(missingFileList);
 
+            if (noMetadataList.Count > 0)
+                ShowLoadFailWarning(noMetadataList);
+
             SaveListView = CollectionViewSource.GetDefaultView(SaveList);
             SaveListView.Filter = SaveListFilter;
             SaveGrid.ItemsSource = SaveListView;
@@ -117,7 +120,11 @@ namespace BG3_Save_Manager
             }
 
             MessageBox.Show($"Successfully deleted {directoryList.Count} save files.", "Deletion Complete");
+        }
 
+        private void ShowLoadFailWarning(List<string> directoryList)
+        {
+            var res = MessageBox.Show($"There were {directoryList.Count} directories that could not be loaded. This could be due to version differences or file corruption.", "Error Loading", MessageBoxButton.OK);
         }
 
         private void OpenFolderSelect()
