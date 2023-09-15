@@ -36,7 +36,7 @@
                 <CheckBox Name="GameVersionCheck" Margin="10,0,0,0" IsChecked="False" Click="ColumnCheck_Click">Game Version</CheckBox>
                 <CheckBox Name="ThumbnailCheck" Margin="10,0,0,0" IsChecked="False" Click="ColumnCheck_Click">Thumbnail</CheckBox>
             </StackPanel>
-            <DataGrid  Grid.Column="1" IsReadOnly="True"  x:Name="SaveGrid" d:ItemsSource="{d:Binding}" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" SelectedCellsChanged="SaveGrid_SelectedCellsChanged">
+            <DataGrid  Grid.Column="1" IsReadOnly="True"  x:Name="SaveGrid" d:ItemsSource="{d:Binding}" GridLinesVisibility="None" AutoGenerateColumns="False" VerticalScrollBarVisibility="Visible" SelectedCellsChanged="SaveGrid_SelectedCellsChanged">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" ></DataGridTextColumn>
                     <DataGridTextColumn Header="Leader Name" Binding="{Binding LeaderName}" ></DataGridTextColumn>
